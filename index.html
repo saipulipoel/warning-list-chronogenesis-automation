@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Scraped News Portal</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 0 20px;
+      line-height: 1.6;
+    }
+    h1 { margin-bottom: 4px; }
+    #meta { color: #666; font-size: 0.9em; margin-bottom: 24px; }
+    ul { padding-left: 20px; }
+    li { margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Latest headlines</h1>
+  <div id="meta">Loading...</div>
+  <ul id="headlines"></ul>
+
+  <script>
+    async function loadData() {
+      try {
+        // Cache-busting query param so browsers don't serve a stale cached copy
+        const response = await fetch('data.json?t=' + Date.now());
+        const data = await response.json();
+
+        document.getElementById('meta').textContent =
+          `Source: ${data.source} | Last updated: ${new Date(data.scraped_at).toLocaleString()}`;
+
+        const list = document.getElementById('headlines');
+        data.headlines.forEach(headline => {
+          const li = document.createElement('li');
+          li.textContent = headline;
+          list.appendChild(li);
+        });
+
+        if (data.headlines.length === 0) {
+          list.innerHTML = '<li>No headlines found. Check your scraper selectors.</li>';
+        }
+      } catch (error) {
+        document.getElementById('meta').textContent = 'Failed to load data: ' + error.message;
+      }
+    }
+
+    loadData();
+  </script>
+</body>
+</html>
